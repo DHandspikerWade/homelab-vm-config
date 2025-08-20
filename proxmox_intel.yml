@@ -1,0 +1,59 @@
+- name: Add kernel boot parameters
+  hosts: proxmox
+  tasks:
+    - name: Add cmdline default
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub.d/cmdline_default.cfg
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+        # turn off hyperthreading, turn on intel IOMMU
+        # Disable USB autosuspend. Proxmox hates it on recent hardware. Gen <8 seems to not care either way. 
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="quiet usbcore.autosuspend=-1 nosmt transparent_hugepage=always intel_iommu=on i915.enable_gvt=1 i915.enable_guc=3 i915.max_vfs=7"'
+        mode: '644'
+        state: present
+        create: true
+      notify:
+        - Update grub
+  handlers:
+    - name: Update grub
+      ansible.builtin.command: update-grub
+
+- name: Set up for GPU passthrough
+  hosts: proxmox
+  tasks:
+    - name: Create vfio.conf
+      ansible.builtin.copy:
+        dest: /etc/modules-load.d/vfio.conf
+        content: |
+          vfio
+          vfio_iommu_type1
+          vfio_pci
+          vfio_virqfd
+
+      notify:
+        - Update initramfs
+    - name: Create gpu-blacklist.conf
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/gpu-blacklist.conf
+        content: |
+          blacklist nouveau
+  handlers:
+    - name: Update initramfs
+      ansible.builtin.command: update-initramfs -u
+
+- name: Install intel VM drivers
+  hosts: control.kube.lan.spikedhand.com # TODO: what's a good way to selector this? Only one VM per host gets the iGPU
+  tasks: 
+    - name: Install Intel GPU drivers
+      become: true
+      ansible.builtin.apt:
+        update_cache: true
+        pkg:
+          - clinfo
+          - vainfo
+          - intel-media-va-driver-non-free
+          - intel-gpu-tools
+          - ocl-icd-libopencl1
+          - intel-opencl-icd
+          - firmware-linux-nonfree
+          - libvpl2
+          - onevpl-tools

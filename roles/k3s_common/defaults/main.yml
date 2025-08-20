@@ -1,0 +1,10 @@
+---
+systemd_dir: /etc/systemd 
+server_group: k3s_server
+agent_group: k3s_agent
+
+k3s_join_token: SET ME IN INVENTORY
+k3s_server_url: SET ME IN INVENTORY
+k3s_advertise_address: SET ME IN INVENTORY
+oci_mirror: gcr.io
+ntp_server: pool.ntp.org

@@ -1,0 +1,33 @@
+- name: 'Install basic tools'
+  ansible.builtin.package:
+    name: '{{ item }}'
+    state: 'present'
+  become: true
+  loop:
+    - nano
+    - htop
+    - git
+    - curl
+    - wget
+    - rsync
+    - pv
+    - dnsutils
+    - needrestart
+
+- ansible.builtin.import_tasks: sudo.yml
+- ansible.builtin.import_tasks: create_user.yml
+
+# Better supports programs built with Windows in mind, but no harm otherwise
+# https://lists.archlinux.org/archives/list/arch-announce@lists.archlinux.org/thread/7I4PNTZNRKUYFATOKXU3P6LKL33H5PMW/
+- name: Increase memory maps
+  become: true
+  ansible.posix.sysctl:
+    name: vm.max_map_count
+    value: '1048576'
+    sysctl_set: true
+    state: present
+    reload: true
+    sysctl_file: /etc/sysctl.d/99-max-map-count.conf
+
+- ansible.builtin.import_tasks: logrotate.yml
+# - ansible.builtin.import_task: ntp.yml

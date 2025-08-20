@@ -1,0 +1,18 @@
+--- 
+
+# Servers need to be done one at a time to prevent breaking quorum
+- name: Upgrade K3s Servers
+  hosts: k3s_server
+  become: true
+  serial: 1
+  roles:
+    - role: k3s_upgrade
+    - role: k3s_common
+
+- name: Upgrade K3s Agents
+  hosts: k3s_agent
+  become: true
+  serial: 30%
+  roles:
+    - role: k3s_upgrade
+    - role: k3s_common

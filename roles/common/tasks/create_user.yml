@@ -1,0 +1,21 @@
+- name: Create admin users
+  become: true
+  ansible.builtin.user:
+    create_home: true
+    name: "{{ admin_user }}"
+    state: present
+    append: true
+    groups: 
+      - sudo
+  when: admin_user is defined
+
+
+- name: Set admin authorized keys from URL
+  become: true
+  ansible.posix.authorized_key:
+    user: "{{ admin_user }}"
+    state: present
+    key: "{{ admin_auth_url }}"
+    validate_certs: true
+    manage_dir: true
+  when: admin_auth_url is defined and admin_user is defined

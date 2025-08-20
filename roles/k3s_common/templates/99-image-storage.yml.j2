@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+imageMaximumGCAge: 240h
+imageMinimumGCAge: 10m
+imageGCHighThresholdPercent: 70
+imageGCLowThresholdPercent: 40
+featureGates:
+  ImageMaximumGCAge: true

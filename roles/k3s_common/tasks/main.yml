@@ -1,0 +1,86 @@
+---
+- name: "Update the service file [agent]"
+  when: "agent_group in group_names"
+  become: true
+  template:
+    src: "k3s-agent.service.j2"
+    dest: "/etc/systemd/system/k3s-agent.service"
+    mode: 0644
+  notify:
+    - reload systemd
+
+- name: "Update the service file [server]"
+  when: "server_group in group_names"
+  become: true
+  template:
+    src: "k3s.service.j2"
+    dest: "/etc/systemd/system/k3s.service"
+    mode: 0644
+  notify:
+    - reload systemd
+
+
+# Config directory isn't created by default on worker nodes
+- name: "Create k3s config directory"
+  ansible.builtin.file:
+    path: '/etc/rancher/k3s'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  become: true
+
+- name: "Create k3s config directory"
+  ansible.builtin.file:
+    path: '/var/lib/rancher/k3s/agent/etc/kubelet.conf.d'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0700'
+  become: true
+
+- name: "Update the kubelet config"
+  become: true
+  template:
+    src: "99-image-storage.yml.j2"
+    dest: "/var/lib/rancher/k3s/agent/etc/kubelet.conf.d/99-image-storage.yml"
+    mode: 0600
+  notify:
+    - restart k3s agent
+    - restart k3s server
+
+- name: "Remove often broken CLI config"
+  become: true
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/10-cli-config.conf
+    state: absent
+
+- name: "Remove past mistakes"
+  become: true
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/kubelet-config.yaml
+    state: absent
+  notify:
+    - restart k3s agent
+    - restart k3s server
+
+- name: "Update the registry config"
+  become: true
+  template:
+    src: "registries.yaml.j2"
+    dest: "/etc/rancher/k3s/registries.yaml"
+    mode: 0644
+  notify:
+    - restart k3s agent
+    - restart k3s server
+
+- name: Install Longhorn dependencies
+  ansible.builtin.package:
+    name: '{{ item }}'
+    state: 'present'
+  become: true
+  loop:
+  - cryptsetup
+  - open-iscsi
+  - nfs-common
+  - dmsetup

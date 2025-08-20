@@ -1,0 +1,19 @@
+- name: Update Logrotate config
+  ansible.builtin.template:
+    src: 'etc/logrotate.d/{{ item }}.j2'
+    dest: '/etc/logrotate.d/{{ item }}'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true
+  loop:
+    - rsyslog
+
+- name: Increase Logrotate timer frequency
+  ansible.builtin.template:
+    src: 'lib/systemd/system/logrotate.timer.j2'
+    dest: '/lib/systemd/system/logrotate.timer'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  become: true

@@ -1,0 +1,6 @@
+---
+- hosts: '*'
+  serial: 2
+  roles:
+    - common
+  

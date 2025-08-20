@@ -1,0 +1,4 @@
+---
+systemd_dir: /etc/systemd
+server_group: k3s_server
+agent_group: k3s_agent

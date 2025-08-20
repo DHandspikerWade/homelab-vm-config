@@ -1,0 +1,16 @@
+---
+- name: reload systemd
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+- name: restart k3s agent
+  when: "agent_group in group_names"
+  ansible.builtin.systemd_service:
+    name: k3s-agent
+    state: restarted
+
+- name: restart k3s server
+  when: "server_group in group_names"
+  ansible.builtin.systemd_service:
+    name: k3s
+    state: restarted

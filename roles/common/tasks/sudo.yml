@@ -1,0 +1,29 @@
+- name: Install sudo
+  ansible.builtin.package:
+    name: 'sudo'
+    state: 'present'
+  become: true
+
+- name: Ensure sudoers.d directory exists
+  ansible.builtin.file:
+    path: '/etc/sudoers.d'
+    state: 'directory'
+    owner: 'root'
+    group: 'root'
+    mode: '0750'
+  become: true
+
+- name: Copy global configuration
+  ansible.builtin.template:
+    src: 'etc/sudoers.j2'
+    dest: '/etc/sudoers'
+    owner: 'root'
+    group: 'root'
+    mode: '0440'
+    validate: /usr/sbin/visudo -cf %s
+  become: true
+
+- name: Make sure we have a 'sudo' group
+  group:
+    name: sudo
+    state: present

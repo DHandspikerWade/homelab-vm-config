@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+{#
+The template updates the default daily rotation attempts to be hourly instead of daily. Logrotate has 
+rules that should run frequently but Debian's default config only calls `logrotate` at midnight.
+#}
+
+[Unit]
+Description=Hourly rotation of log files
+Documentation=man:logrotate(8) man:logrotate.conf(5)
+
+[Timer]
+OnCalendar=hourly
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

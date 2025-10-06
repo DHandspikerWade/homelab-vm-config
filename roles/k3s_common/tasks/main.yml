@@ -20,6 +20,20 @@
     - reload systemd
 
 
+- name: "Enable k3s service [server]"
+  when: "server_group in group_names"
+  ansible.builtin.systemd_service:
+    name: k3s
+    enabled: true
+
+- name: "Enable k3s service [server]"
+  when: "agent_group in group_names"
+  ansible.builtin.systemd_service:
+    name: k3s-agent
+    enabled: true
+
+
+
 # Config directory isn't created by default on worker nodes
 - name: "Create k3s config directory"
   ansible.builtin.file:

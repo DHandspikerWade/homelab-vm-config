@@ -1,4 +1,11 @@
 ---
 - name: reload systemd
+  become: true
   ansible.builtin.systemd_service:
     daemon_reload: true
+
+- name: restart ntp
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-timesyncd
+    state: restarted

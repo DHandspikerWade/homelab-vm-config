@@ -30,4 +30,4 @@
     sysctl_file: /etc/sysctl.d/99-max-map-count.conf
 
 - ansible.builtin.import_tasks: logrotate.yml
-# - ansible.builtin.import_task: ntp.yml
+- ansible.builtin.import_tasks: ntp.yml

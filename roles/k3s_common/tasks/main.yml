@@ -88,6 +88,19 @@
     - restart k3s agent
     - restart k3s server
 
+- name: Enable non-free firmware repo
+  deb822_repository:
+    name: debian
+    types: deb
+    uris: http://deb.debian.org/debian
+    suites: "{{ ansible_distribution_release }}"
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    components:
+      - main
+      - contrib
+      - non-free
+      - non-free-firmware
+
 - name: Install Longhorn dependencies
   ansible.builtin.package:
     name: '{{ item }}'

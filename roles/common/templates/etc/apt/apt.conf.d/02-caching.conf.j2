@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% if apt_cache %}
+Acquire::http::Proxy "http://{{ apt_cache }}";
+{% endif %}

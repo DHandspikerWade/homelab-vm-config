@@ -1,3 +1,4 @@
 ---
 systemd_dir: /etc/systemd
 ntp_server: pool.ntp.org
+apt_cache: false

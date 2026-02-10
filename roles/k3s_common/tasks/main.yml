@@ -32,8 +32,6 @@
     name: k3s-agent
     enabled: true
 
-
-
 # Config directory isn't created by default on worker nodes
 - name: "Create k3s config directory"
   ansible.builtin.file:
@@ -111,3 +109,17 @@
   - open-iscsi
   - nfs-common
   - dmsetup
+
+# Easy to run into debian's low default values. Numbers taken from Kubernetes github
+- name: Update max file watchers
+  ansible.posix.sysctl:
+    name: '{{ item.key }}'
+    value: '{{ item.value }}'
+    sysctl_set: true
+    state: present
+  become: true
+  loop: "{{ sysctl_items | dict2items }}"
+  vars:
+    sysctl_items:
+      fs.inotify.max_user_watches: 65536
+      fs.inotify.max_user_instances: 8192
